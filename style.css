@@ -1,0 +1,510 @@
+:root {
+    --font-serif: 'Cormorant Garamond', serif;
+    --font-sans: 'Poppins', sans-serif;
+    --color-bg: #fdfdfd;
+    --color-text: #1a1a1a;
+    --color-accent: #b0b0b0;
+    --color-border: #e0e0e0;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    cursor: none;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* --- PERSISTENT UI (HEADER, FOOTER, PROGRESS BAR) --- */
+.persistent-header, .persistent-footer {
+    position: fixed;
+    width: 100%;
+    padding: 2rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-sans);
+    font-weight: 300;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    z-index: 10;
+    pointer-events: none;
+}
+.persistent-header a, .persistent-footer a, .cta-button, .modal-close {
+    pointer-events: auto;
+}
+
+.persistent-header {
+    top: 0;
+}
+.persistent-footer {
+    bottom: 0;
+}
+
+.logo a {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.header-indicator {
+    position: relative;
+    height: 1.2em;
+    overflow: hidden;
+}
+
+.header-indicator span {
+    display: block;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.header-indicator span.hidden {
+    position: absolute;
+    top: 0;
+    transform: translateY(110%);
+}
+
+.footer-content a {
+    margin-left: 1.5rem;
+}
+
+.progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 0;
+    background-color: var(--color-text);
+    z-index: 200; 
+}
+
+/* --- MAIN CONTENT & HORIZONTAL SCROLL SETUP (DESKTOP) --- */
+.page-container {
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.sections-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    height: 100vh;
+    width: 500%; 
+}
+
+.panel {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    flex-shrink: 0;
+}
+
+/* --- SECTION-SPECIFIC STYLES --- */
+ 
+/* --- HERO SECTION STYLES --- */
+#landing-content .panel-content {
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.hero-layout {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70%;
+    max-width: 800px;
+    perspective: 1000px; /* Enables 3D transforms for the parallax */
+}
+
+.hero-image-container {
+    position: relative;
+    width: 40vh;
+    height: 60vh;
+    max-width: 300px;
+    max-height: 450px;
+    flex-shrink: 0;
+    transition: transform 0.2s ease-out; /* For smooth mouse movement */
+}
+
+/* The accent circle behind the image */
+.hero-image-container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120%;
+    padding-bottom: 120%;
+    background-color: #fbbd24;
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.parallax-text {
+    font-family: var(--font-serif);
+    font-size: clamp(3rem, 10vw, 8rem);
+    font-weight: 400;
+    line-height: 1;
+    color: var(--color-text);
+    position: absolute;
+    transition: transform 0.2s ease-out; /* For smooth mouse movement */
+z-index: 1;
+}
+
+/* THIS IS THE CORRECTED PART */
+.parallax-text.text-1 { left: -15%; ; top: 20%; }
+.parallax-text.text-2 {  left: 50%;  top: 45%; transform: translateX(-50%); }
+.parallax-text.text-3 {  right: -25%;  bottom: 15%; }
+
+/* Style for the text reveal animation */
+.parallax-text span {
+    display: inline-block;
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+    
+}
+
+#work-content .panel-content { width: 100%; max-width: 1200px; }
+.work-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem 4rem; width: 100%; }
+.project-item { padding: 2rem 0; border-bottom: 1px solid var(--color-border); position: relative; } /* Added position:relative */
+.project-item:nth-last-child(-n+2) { border-bottom: none; }
+.project-item h2 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; }
+.project-item p { font-weight: 300; color: var(--color-accent); }
+
+#about-content .panel-content { display: flex; align-items: center; justify-content: center; gap: 5rem; max-width: 1000px; }
+.about-text { flex: 1; }
+.about-text h2 { font-family: var(--font-serif); font-size: 3rem; font-weight: 600; margin-bottom: 1.5rem; }
+.about-text p { font-size: 1.1rem; line-height: 1.8; max-width: 40ch; }
+.about-image { flex-basis: 300px; }
+.about-image img { width: 100%; height: auto; display: block; }
+
+#workflow-content .panel-content { max-width: 900px; width: 100%; text-align: left;}
+#workflow-content h2 { font-family: var(--font-serif); font-size: 3rem; font-weight: 600; margin-bottom: 3rem; text-align: center;}
+.workflow-list { list-style: none; counter-reset: workflow-counter; }
+.workflow-item { padding: 1.5rem 0 1.5rem 5rem; position: relative; border-bottom: 1px solid var(--color-border); }
+.workflow-item:last-child { border-bottom: none; }
+.workflow-item::before {
+    counter-increment: workflow-counter;
+    content: "0" counter(workflow-counter);
+    position: absolute;
+    left: 0;
+    top: 1.5rem;
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    color: var(--color-accent);
+}
+.workflow-item h3 { font-size: 1.5rem; font-family: var(--font-sans); font-weight: 400; margin-bottom: 0.5rem; }
+.workflow-item p { font-size: 1rem; line-height: 1.7; color: #555; max-width: 60ch;}
+
+#cta-content .panel-content { text-align: center; }
+#cta-content h2 { font-family: var(--font-serif); font-size: clamp(2.5rem, 8vw, 6rem); font-weight: 600; line-height: 1.1; margin-bottom: 2rem; }
+
+/* --- PROJECT MODAL STYLES --- */
+.project-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 150; display: none; align-items: center; justify-content: center; }
+.modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(253, 253, 253, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.modal-content { position: relative; background-color: var(--color-bg); padding: 3rem; max-width: 90vw; max-height: 90vh; width: 800px; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+.modal-close { position: absolute; top: 1rem; right: 1.5rem; font-size: 2rem; font-family: var(--font-sans); color: var(--color-text); opacity: 0.5; transition: opacity 0.3s, transform 0.3s; }
+.modal-close:hover { opacity: 1; transform: scale(1.1); }
+.modal-content img { width: 100%; height: auto; margin-bottom: 2rem; }
+.modal-content h3 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+.modal-content p { font-size: 1rem; line-height: 1.7; color: #555; }
+
+
+/* --- INTERACTION STYLES --- */
+
+/* 1. Custom Cursor */
+.custom-cursor { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    pointer-events: none; 
+    z-index: 9999;
+    mix-blend-mode: difference;
+    will-change: transform;
+    /* Add a transition to smooth the blend-mode switch if needed */
+    transition: mix-blend-mode 0.3s; 
+}.custom-cursor.preview-active {
+    mix-blend-mode: normal;
+}
+
+.cursor-dot {
+    width: 12px;
+    height: 12px;
+    background-color: white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s;
+}
+
+.cursor-preview { 
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200px; 
+    height: 133px; 
+    background-size: cover; 
+    background-position: center; 
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.4s;
+    will-change: transform, opacity;
+}
+
+/* When preview is active, show the image and hide the dot */
+.custom-cursor.preview-active .cursor-preview {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+}
+
+.custom-cursor.preview-active .cursor-dot {
+    opacity: 0;
+}
+
+/* When hovering a link, just make the dot bigger */
+.custom-cursor.link-hovered .cursor-dot {
+    transform: translate(-50%, -50%) scale(3);
+}
+
+/* 3. Logic for switching between the two cursors via classes on the <body> */
+body.is-link-hovered .cursor-dot {
+    transform: translate(-50%, -50%) scale(3);
+}
+
+body.is-preview-active .cursor-dot {
+    opacity: 0;
+}
+
+body.is-preview-active .cursor-preview-container {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* 4. Magnetic CTA Button */
+.cta-button {
+    background-color: var(--color-text);
+    color: var(--color-bg);
+    border: none;
+    padding: 1.2rem 2.5rem;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    cursor: none;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.cta-button .btn-text {
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* 5. Animated Link Underlines */
+.footer-content a {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 4px;
+}
+.footer-content a span {
+    display: inline-block;
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.footer-content a:hover span {
+    transform: translateY(-2px);
+}
+.footer-content a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: var(--color-text);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.footer-content a:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+/* 6. Hover Lift Effect */
+.workflow-item { /* The workflow item still gets the nice lift effect */
+    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+.workflow-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px -10px rgba(0,0,0,0.1);
+}
+
+.project-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #e9e9e9;
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    z-index: 1;
+    pointer-events: none; /* Allows click-through */
+}
+.project-item:hover::before {
+    opacity: 0.85;
+}
+/* Ensure text is above the overlay */
+.project-item h2, .project-item p {
+    position: relative;
+    z-index: 2;
+    transition: color 0.4s ease;
+}
+/* Optional: darken text on hover to improve contrast */
+.project-item:hover h2, .project-item:hover p {
+    color: #000;
+}
+
+
+/* --- RESPONSIVE STYLES (MOBILE) --- */
+@media (max-width: 900px) {
+    body {
+        cursor: auto;
+    }
+
+    .persistent-header, .persistent-footer { padding: 1.5rem; }
+    .page-container { height: auto; overflow: visible; }
+    .sections-wrapper { display: block; width: 100%; height: auto; }
+    .panel { width: 100%; height: auto; min-height: 100vh; padding: 6rem 1.5rem; flex-direction: column; text-align: center; }
+    
+    .work-grid { grid-template-columns: 1fr; gap: 0; }
+    .project-item:last-child { border-bottom: none; }
+    .workflow-item:hover { /* Disable lift on mobile */
+        transform: none;
+        box-shadow: none;
+    }
+    .project-item::before { /* Disable overlay on mobile */
+        display: none;
+    }
+
+    #about-content .panel-content { flex-direction: column; gap: 3rem; }
+    .about-image { order: -1; width: 60%; max-width: 250px; }
+    .about-text p { margin: 0 auto; }
+    
+    #workflow-content .panel-content { padding: 0; }
+    #workflow-content h2 { margin-bottom: 2rem; }
+    .workflow-item { padding: 1.5rem 0 1.5rem 3.5rem; }
+    .workflow-item::before { font-size: 1.5rem; }
+    .workflow-item h3 { font-size: 1.2rem; }
+    .workflow-item p { font-size: 0.9rem; }
+
+    .custom-cursor { 
+        display: none !important; 
+    }
+    
+    .modal-content { padding: 2rem 1.5rem; }
+    .modal-close { top: 0.5rem; right: 1rem; }
+}/* --- mobile: HERO SECTION STYLES --- */
+#landing-content .panel-content {
+    text-align: left; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.hero-layout {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70%;
+    max-width: 800px;
+    /* perspective is for 3D transforms in JS */
+    perspective: 1000px; 
+}
+
+.hero-image-container {
+    position: relative;
+    width: 40vh;
+    height: 60vh;
+    max-width: 300px;
+    max-height: 450px;
+    flex-shrink: 0;
+    /* Add transition for smooth mouse parallax */
+    transition: transform 0.2s ease-out; 
+}
+
+/* accent circle behind the image */
+.hero-image-container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120%;
+    padding-bottom: 120%;
+    /* You can change this color */
+    background-color: #fbbd24; 
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Use contain to prevent cropping */
+}
+
+.parallax-text {
+    /* Use the same font as your original H1 */
+    font-family: var(--font-serif); 
+    font-size: clamp(3rem, 10vw, 8rem);
+    font-weight: 400;
+    line-height: 1;
+    color: #ccc; /* A subtle color for the text */
+    position: absolute;
+    /* Add transition for smooth mouse parallax */
+    transition: transform 0.2s ease-out; 
+}
+
+/* Positioning for each word */
+.parallax-text.less { left: 0; top: 20%; color: #000; }
+.parallax-text.is { left: 50%; top: 45%; transform: translateX(-50%); color: #000; }
+.parallax-text.more { right: 0; bottom: 15%; color: #000; }
+
+/* Styles for the text reveal animation */
+.parallax-text span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(40px);
+}
