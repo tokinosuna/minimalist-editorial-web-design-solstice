@@ -4,7 +4,7 @@
 
 **Solstice** is an open-source case study in modern web design, featuring a horizontal scroll layout, kinetic typography, and advanced micro-interactions powered by GSAP. It is presented as a foundation for developers and designers to explore and learn from.
 
-**[Link to Live Demo]** 
+**[[Link to Live Demo](https://tokinosuna.github.io/minimalist-editorial-web-design-solstice/)]** 
 
 ![Solstice Screenshot](#) 
 
