@@ -6,7 +6,7 @@
 
 **[Link to Live Demo]** 
 
-![Solstice Screenshot](https://pbs.twimg.com/media/Em8CNx5VoAA8_lR?format=png&name=4096x4096) 
+![Solstice Screenshot](#) 
 
 ## Project Philosophy
 
