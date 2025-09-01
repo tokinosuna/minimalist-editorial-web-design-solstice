@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Elements for micro-interactions
     const customCursor = document.querySelector('.custom-cursor');
-    const cursorDot = document.querySelector('.cursor-dot');
     const ctaButton = document.querySelector('.cta-button');
     const ctaButtonText = document.querySelector('.cta-button .btn-text');
     const interactiveLinks = document.querySelectorAll('.interactive-link');
@@ -24,84 +23,53 @@ document.addEventListener("DOMContentLoaded", function() {
     const modalClose = document.querySelector('.modal-close');
     const modalOverlay = document.querySelector('.modal-overlay');
 
+    // --- NEW: Elements for meaning modal ---
+    const logoTrigger = document.getElementById('logo-trigger');
+    const meaningModal = document.getElementById('meaning-modal');
+    const meaningModalContent = meaningModal.querySelector('.modal-content');
+    const meaningModalClose = meaningModal.querySelector('.modal-close');
+    const meaningModalOverlay = meaningModal.querySelector('.modal-overlay');
+
     // --- STATE VARIABLES ---
     let currentIndicator = indicatorSpans[0];
-    let isHeaderAnimating = false; // Flag to prevent animation overlap
+    let isHeaderAnimating = false; 
 
-
-    // --- [NEW & IMPROVED] ROBUST HEADER INDICATOR LOGIC ---
+    // --- HEADER INDICATOR LOGIC ---
     function updateHeaderIndicator(newSectionId) {
-        if (isHeaderAnimating || currentIndicator.dataset.section === newSectionId) {
-            return;
-        }
-
+        if (isHeaderAnimating || currentIndicator.dataset.section === newSectionId) return;
         const newIndicator = headerIndicator.querySelector(`[data-section="${newSectionId}"]`);
         if (!newIndicator) return;
 
         isHeaderAnimating = true;
-        const oldIndicator = currentIndicator;
-
-        gsap.to(oldIndicator, {
-            y: '-110%',
-            duration: 0.6,
-            ease: 'power3.inOut',
-            onComplete: () => {
-                oldIndicator.classList.add('hidden');
-            }
-        });
-
+        gsap.to(currentIndicator, { y: '-110%', duration: 0.6, ease: 'power3.inOut', onComplete: () => currentIndicator.classList.add('hidden') });
         newIndicator.classList.remove('hidden');
-        gsap.fromTo(newIndicator, 
-            { y: '110%' }, 
-            { 
-                y: '0%', 
-                duration: 0.6, 
-                ease: 'power3.inOut',
-                onComplete: () => {
-                    isHeaderAnimating = false;
-                }
-            }
-        );
-        
+        gsap.fromTo(newIndicator, { y: '110%' }, { y: '0%', duration: 0.6, ease: 'power3.inOut', onComplete: () => { isHeaderAnimating = false; } });
         currentIndicator = newIndicator;
     }
 
-
     // --- MICRO-INTERACTION LOGIC ---
+    function setupCustomCursor() {
+        if (window.matchMedia("(pointer: fine)").matches) {
+            const cursorX = gsap.quickSetter(customCursor, "x", "px");
+            const cursorY = gsap.quickSetter(customCursor, "y", "px");
 
-  // In script.js
+            window.addEventListener('mousemove', e => { cursorX(e.clientX); cursorY(e.clientY); });
 
-function setupCustomCursor() {
-    if (window.matchMedia("(pointer: fine)").matches) {
-        const customCursor = document.querySelector('.custom-cursor'); // Use the original single cursor
-        const cursorDot = document.querySelector('.cursor-dot');
-
-        const cursorX = gsap.quickSetter(customCursor, "x", "px");
-        const cursorY = gsap.quickSetter(customCursor, "y", "px");
-
-        window.addEventListener('mousemove', e => {
-            cursorX(e.clientX);
-            cursorY(e.clientY);
-        });
-
-        interactiveLinks.forEach(link => {
-            link.addEventListener('mouseenter', () => customCursor.classList.add('link-hovered'));
-            link.addEventListener('mouseleave', () => customCursor.classList.remove('link-hovered'));
-        });
-
-        projectItems.forEach(item => {
-            const previewImg = item.dataset.previewImg;
-            item.addEventListener('mouseenter', () => {
-                // This is the key part: it adds .preview-active to the parent
-                customCursor.querySelector('.cursor-preview').style.backgroundImage = `url(${previewImg})`;
-                customCursor.classList.add('preview-active');
+            document.querySelectorAll('.interactive-link').forEach(link => {
+                link.addEventListener('mouseenter', () => customCursor.classList.add('link-hovered'));
+                link.addEventListener('mouseleave', () => customCursor.classList.remove('link-hovered'));
             });
-            item.addEventListener('mouseleave', () => {
-                customCursor.classList.remove('preview-active');
+
+            projectItems.forEach(item => {
+                const previewImg = item.dataset.previewImg;
+                item.addEventListener('mouseenter', () => {
+                    customCursor.querySelector('.cursor-preview').style.backgroundImage = `url(${previewImg})`;
+                    customCursor.classList.add('preview-active');
+                });
+                item.addEventListener('mouseleave', () => customCursor.classList.remove('preview-active'));
             });
-        });
+        }
     }
-}
     
     function setupMagneticButton() {
         if (window.matchMedia("(pointer: fine)").matches && ctaButton) {
@@ -115,13 +83,11 @@ function setupCustomCursor() {
                 gsap.to(ctaButtonText, { x: x * 30, y: y * 30, duration: 0.5, ease: 'power3.out' });
             });
 
-            ctaButton.addEventListener('mouseleave', function() {
-                gsap.to([ctaButton, ctaButtonText], { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.3)' });
-            });
+            ctaButton.addEventListener('mouseleave', () => gsap.to([ctaButton, ctaButtonText], { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.3)' }));
         }
     }
 
-    // --- CORE PAGE LOGIC ---
+    // --- MODAL LOGIC ---
 
     function openModal(item) {
         document.body.classList.add('modal-open');
@@ -136,23 +102,49 @@ function setupCustomCursor() {
 
     function closeModal() {
         gsap.to([modalOverlay, modalContent], { 
-            opacity: 0, 
-            duration: 0.3, 
-            ease: 'power2.in', 
+            opacity: 0, duration: 0.3, ease: 'power2.in', 
             onComplete: () => {
                 gsap.set(modal, { display: 'none' });
-                document.body.classList.remove('modal-open');
+                if (window.getComputedStyle(meaningModal).display === 'none') {
+                    document.body.classList.remove('modal-open');
+                }
             }
         });
     }
 
-    projectItems.forEach(item => {
-        item.addEventListener('click', (e) => { e.preventDefault(); openModal(item); });
-    });
+    function openMeaningModal() {
+        document.body.classList.add('modal-open');
+        gsap.set(meaningModal, { display: 'flex' });
+        gsap.fromTo([meaningModalOverlay, meaningModalContent], { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' });
+        gsap.from(meaningModalContent, { scale: 0.95, y: 10, duration: 0.4, ease: 'power2.out' });
+    }
+
+    function closeMeaningModal() {
+        gsap.to([meaningModalOverlay, meaningModalContent], {
+            opacity: 0, duration: 0.3, ease: 'power2.in',
+            onComplete: () => {
+                gsap.set(meaningModal, { display: 'none' });
+                if (window.getComputedStyle(modal).display === 'none') {
+                    document.body.classList.remove('modal-open');
+                }
+            }
+        });
+    }
+
+    // --- Event Listeners ---
+    projectItems.forEach(item => item.addEventListener('click', (e) => { e.preventDefault(); openModal(item); }));
     modalClose.addEventListener('click', closeModal);
     modalOverlay.addEventListener('click', closeModal);
+    
+    logoTrigger.addEventListener('click', (e) => { e.preventDefault(); openMeaningModal(); });
+    meaningModalClose.addEventListener('click', closeMeaningModal);
+    meaningModalOverlay.addEventListener('click', closeMeaningModal);
+    
     window.addEventListener('keydown', (e) => {
-        if (e.key === "Escape" && document.body.classList.contains('modal-open')) { closeModal(); }
+        if (e.key === "Escape" && document.body.classList.contains('modal-open')) {
+            if (window.getComputedStyle(modal).display === 'flex') closeModal();
+            if (window.getComputedStyle(meaningModal).display === 'flex') closeMeaningModal();
+        }
     });
 
     // --- GSAP MAIN ANIMATION CONTEXT ---
@@ -161,10 +153,10 @@ function setupCustomCursor() {
         setupCustomCursor();
         setupMagneticButton();
         
-        // --- NEW HERO ANIMATIONS ---
-        // 1. Text reveal animation on page load
-        gsap.from("#landing-content .parallax-text span", {
-            y: 60,
+        // --- CORRECTED HERO ANIMATION ---
+        // Animate TO a visible state from the state defined in the CSS
+        gsap.to("#landing-content .parallax-text span", {
+            y: 0,
             opacity: 1,
             duration: 1.2,
             ease: "power3.out",
@@ -172,7 +164,6 @@ function setupCustomCursor() {
             delay: 0.5
         });
 
-        // 2. Mouse move parallax effect
         if (window.matchMedia("(pointer: fine)").matches) {
             const landingSection = document.getElementById('landing-content');
             const heroImage = landingSection.querySelector('.hero-image-container');
@@ -182,31 +173,15 @@ function setupCustomCursor() {
                 const { clientX, clientY } = e;
                 const x = (clientX / window.innerWidth - 0.5) * -1;
                 const y = (clientY / window.innerHeight - 0.5) * -1;
-                const rotationFactor = 10;
-
-                // Animate the image with 3D rotation
-                gsap.to(heroImage, {
-                    x: x * 20,
-                    y: y * 20,
-                    rotationY: x * rotationFactor,
-                    rotationX: -y * rotationFactor,
-                    duration: 0.5,
-                    ease: 'power2.out'
-                });
-
-                // Animate the text layers
+                
+                gsap.to(heroImage, { x: x * 20, y: y * 20, rotationY: x * 10, rotationX: -y * 10, duration: 0.5, ease: 'power2.out' });
                 gsap.to(parallaxTexts[0], { x: x * -35, y: y * -25, duration: 0.5, ease: 'power2.out' });
                 gsap.to(parallaxTexts[1], { x: x * -15, y: y * -55, duration: 0.5, ease: 'power2.out' });
                 gsap.to(parallaxTexts[2], { x: x * -50, y: y * -30, duration: 0.5, ease: 'power2.out' });
             });
         }
-        // --- END NEW HERO ANIMATIONS ---
 
-
-        // Responsive animations using ScrollTrigger.matchMedia
         ScrollTrigger.matchMedia({
-
-            // DESKTOP: Horizontal Scroll
             "(min-width: 901px)": function() {
                 let horizontalScroll = gsap.to(sectionsWrapper, {
                     x: () => `-${sectionsWrapper.scrollWidth - document.documentElement.clientWidth}px`,
@@ -216,9 +191,7 @@ function setupCustomCursor() {
                         pin: true,
                         scrub: 1,
                         end: () => `+=${sectionsWrapper.scrollWidth - document.documentElement.clientWidth}`,
-                        onUpdate: (self) => {
-                             gsap.to(".progress-bar", { width: self.progress * 100 + "%", ease: "none" });
-                        },
+                        onUpdate: (self) => gsap.to(".progress-bar", { width: self.progress * 100 + "%", ease: "none" }),
                         invalidateOnRefresh: true
                     }
                 });
@@ -236,7 +209,6 @@ function setupCustomCursor() {
                         gsap.to(section.querySelector('.about-image'), { x: -80, ease: 'none', scrollTrigger: { containerAnimation: horizontalScroll, trigger: section, start: 'left right', end: 'right left', scrub: true } });
                         gsap.to(section.querySelector('.about-text'), { x: 80, ease: 'none', scrollTrigger: { containerAnimation: horizontalScroll, trigger: section, start: 'left right', end: 'right left', scrub: true } });
                     }
-                    
                     if (section.id === 'work-content' || section.id === 'workflow-content') {
                          gsap.from(section.querySelectorAll('.project-item, .workflow-item'), { opacity: 0, y: 50, stagger: 0.1, scrollTrigger: { containerAnimation: horizontalScroll, trigger: section, start: 'left 70%' } });
                     }
@@ -247,36 +219,16 @@ function setupCustomCursor() {
                 });
             },
 
-            // MOBILE: Standard Vertical Scroll
             "(max-width: 900px)": function() {
-                ScrollTrigger.create({ 
-                    trigger: "body", 
-                    start: "top top", 
-                    end: "bottom bottom", 
-                    onUpdate: self => gsap.to(".progress-bar", {width: self.progress * 100 + "%"}) 
-                });
+                ScrollTrigger.create({ trigger: "body", start: "top top", end: "bottom bottom", onUpdate: self => gsap.to(".progress-bar", {width: self.progress * 100 + "%"}) });
                 
                 sections.forEach(section => {
-                    ScrollTrigger.create({ 
-                        trigger: section, 
-                        start: "top center", 
-                        end: "bottom center", 
-                        onToggle: self => self.isActive && updateHeaderIndicator(section.id) 
-                    });
-                    
-                    gsap.from(section.querySelectorAll('.project-item, .workflow-item, #cta-content h2, #cta-content .cta-button'), { 
-                        opacity: 0, 
-                        y: 50, 
-                        stagger: 0.1, 
-                        scrollTrigger: { 
-                            trigger: section, 
-                            start: 'top 80%' 
-                        } 
-                    });
+                    ScrollTrigger.create({ trigger: section, start: "top center", end: "bottom center", onToggle: self => self.isActive && updateHeaderIndicator(section.id) });
+                    gsap.from(section.querySelectorAll('.project-item, .workflow-item, #cta-content h2, #cta-content .cta-button'), { opacity: 0, y: 50, stagger: 0.1, scrollTrigger: { trigger: section, start: 'top 80%' } });
                 });
             }
         });
 
-    }); // End GSAP Context
+    });
 
 });
